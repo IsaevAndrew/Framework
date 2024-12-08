@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from server import SimpleFramework
-from response import HtmlResponse
+from response import HtmlResponse, Response
 
 app = SimpleFramework()
 
@@ -22,6 +22,9 @@ def time(app):
         "time": current_time
     }))
 
+@app.route('/user/<username>')
+def show_user(username):
+    return Response(f"Hello {username} !")
 
 if __name__ == "__main__":
     app.start_server()

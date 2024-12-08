@@ -77,7 +77,7 @@ class SimpleFramework:
             handler, params = self.router.get_route(environ["path"],
                                                     environ["method"])
             if handler:
-                response = handler(self, **params) if params else handler(self)
+                response = handler(**params) if params else handler(self)
 
                 if isinstance(response, Response):
                     return response.to_http_response()
