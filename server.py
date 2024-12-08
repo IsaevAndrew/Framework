@@ -3,13 +3,33 @@ import threading
 import socket
 from router import Router
 import os
+import queue
+import logging
 
 
 class SimpleFramework:
-    def __init__(self, static_folder="static", template_folder="templates"):
+    def __init__(self, static_folder="static", template_folder="templates",
+                 max_threads=5):
         self.routes = Router()
         self.static_folder = static_folder
         self.template_folder = template_folder
+        self.task_queue = queue.Queue()
+        self.max_threads = max_threads
+        self.lock = threading.Lock()
+        self.sessions = {}  # Хранение сессий
+        self.middleware = []  # Список промежуточных обработчиков
+        self.logger = self.setup_logging()
+
+    def setup_logging(self):
+        """ Настройка логирования """
+        logger = logging.getLogger('SimpleFramework')
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '%(asctime)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+        return logger
 
     def route(self, path, methods=["GET"]):
         """ Регистрация маршрута для конкретного пути """
@@ -91,30 +111,41 @@ class SimpleFramework:
 
         return [response_body.encode("utf-8")]
 
+    def handle_client(self, client_socket):
+        """ Обрабатываем запрос клиента в отдельном потоке """
+        request = client_socket.recv(1024).decode()
+        if request:
+            response = self.handle_request(request)
+            client_socket.sendall(response.encode())
+        client_socket.close()
+
+    def worker(self):
+        """ Рабочий поток, который будет извлекать задачи из очереди и их обрабатывать """
+        while True:
+            client_socket = self.task_queue.get()
+            if client_socket is None:
+                break  # Завершаем поток, если в очереди None
+            self.handle_client(client_socket)
+            self.task_queue.task_done()
+
     def start_server(self, host="127.0.0.1", port=8080):
-        """ Запуск сервера с использованием многопоточности """
+        """ Запуск сервера """
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         server_socket.bind((host, port))
         server_socket.listen(5)
 
         print(f"Server started at http://{host}:{port}")
 
-        def handle_client(client_socket):
-            try:
-                request = client_socket.recv(1024).decode()
-                if request:
-                    response = self.handle_request(request)
-                    client_socket.sendall(response.encode())
-            except Exception as e:
-                print(f"Error handling client: {e}")
-            finally:
-                client_socket.close()
+        # Запускаем несколько рабочих потоков
+        for _ in range(self.max_threads):
+            threading.Thread(target=self.worker, daemon=True).start()
 
         while True:
             client_socket, client_address = server_socket.accept()
-            print(f"Connection established with {client_address}")
-            client_thread = threading.Thread(target=handle_client,
-                                             args=(client_socket,))
-            client_thread.daemon = True
-            client_thread.start()
+            self.logger.info(f"New connection from {client_address}")
+            # Помещаем клиентский сокет в очередь задач
+            self.task_queue.put(client_socket)
+
+    def use(self, middleware):
+        """ Регистрация промежуточных обработчиков (middleware) """
+        self.middleware.append(middleware)
