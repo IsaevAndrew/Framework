@@ -6,14 +6,14 @@ app = SimpleFramework()
 
 
 @app.route("/")
-def index(app, request):
+def index(app):
     return app.render_template("index.html", {"title": "Home",
                                               "message": "Welcome to the Async Web Framework!"})
 
 
 # Маршрут времени
 @app.route("/time")
-def time(app, request):
+def time(app):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return app.render_template("time.html", {"title": "Current Time",
                                              "time": current_time})

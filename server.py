@@ -12,7 +12,7 @@ import logging
 class SimpleFramework:
     def __init__(self, static_folder="static", template_folder="templates",
                  max_threads=5):
-        self.routes = Router()
+        self.router = Router()
         self.static_folder = static_folder
         self.template_folder = template_folder
         self.task_queue = queue.Queue()
@@ -34,20 +34,8 @@ class SimpleFramework:
         return logger
 
     def route(self, path, methods=["GET"]):
-        """ Регистрация маршрута для конкретного пути """
-
-        def wrapper(func):
-            self.routes[(path, tuple(methods))] = func
-            return func
-
-        return wrapper
-
-    def get_route(self, path, method):
-        """ Получаем обработчик для маршрута по пути и методу """
-        for (route_path, methods), func in self.routes.items():
-            if path == route_path and method in methods:
-                return func
-        return None
+        """Регистрация маршрута через маршрутизатор"""
+        return self.router.route(path, methods)
 
     def render_template(self, template_name, context=None):
         """ Простая шаблонизация """
@@ -75,9 +63,13 @@ class SimpleFramework:
             if path.startswith("/static/"):
                 return self.serve_static_file(path)
 
-            handler = self.get_route(path, method)
+            handler, params = self.router.get_route(path, method)
             if handler:
-                response = handler(self)
+                if params:
+                    response = handler(**params)
+                else:
+                    response = handler(self)
+
                 if isinstance(response, Response):
                     return response.to_http_response()
                 else:
@@ -121,7 +113,7 @@ class SimpleFramework:
         """ Обработка входящих WSGI-запросов """
         path = environ.get("PATH_INFO", "/")
         method = environ.get("REQUEST_METHOD", "GET")
-        handler = self.get_route(path, method)
+        handler = self.router.get_route(path, method)
 
         if handler:
             response_body = handler(self)
