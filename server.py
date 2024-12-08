@@ -95,9 +95,3 @@ class SimpleFramework:
         with make_server(host, port, self) as httpd:
             print(f"Server started at http://{host}:{port}")
             httpd.serve_forever()
-
-
-app = SimpleFramework()
-
-if __name__ == "__main__":
-    app.start_server()
