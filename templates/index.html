@@ -1,11 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #1e90ff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header p {
+            font-size: 0.9em;
+            color: white;
+            text-align: left;
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .team-header {
+            margin-bottom: 40px;
+        }
+
+        .team-header h1 {
+            font-size: 2.5em;
+            margin: 0;
+        }
+
+        .team-header p {
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .team-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .team-member {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 45%;
+            transition: transform 0.3s;
+        }
+
+        .team-member:hover {
+            transform: scale(1.05);
+        }
+
+        .team-member h2 {
+            font-size: 1.6em;
+            margin: 10px 0;
+        }
+
+        .team-member p {
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        footer {
+            text-align: left;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            margin-top: 40px;
+        }
+
+        footer a {
+            color: #1e90ff;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>{{ message }}</h1>
+
+<header>
+    <h1>{{ title }}</h1>
+</header>
+
+<div class="container">
+    <section class="team-header">
+        <h1>Наша команда</h1>
+        <p>Мы разрабатываем <strong>WFW</strong> — веб-фреймворк, который
+            упрощает создание и управление веб-приложениями. С его помощью мы
+            решаем множество задач: от маршрутизации до работы с сессиями. WFW
+            помогает быстро и эффективно разрабатывать приложения, фокусируясь
+            на важной логике, а не на технических деталях.</p>
+    </section>
+
+    <section class="team-header">
+        <h1>Что мы делаем</h1>
+        <p>С помощью <strong>WFW</strong> можно:</p>
+        <ul>
+            <li><strong>Простую маршрутизацию:</strong> Регистрация маршрутов
+                для различных HTTP-методов (GET, POST и другие) помогает легко
+                управлять запросами.
+            </li>
+            <li><strong>Гибкую шаблонизацию:</strong> Динамическая генерация
+                HTML-страниц с помощью шаблонов, заменяя переменные на значения
+                из контекста.
+            </li>
+            <li><strong>Обработку статических файлов:</strong> Легкая работа с
+                изображениями, CSS и JavaScript, без необходимости сложных
+                настроек.
+            </li>
+            <li><strong>Управление сессиями:</strong> Хранение данных между
+                запросами для таких целей, как авторизация и обработка данных.
+            </li>
+            <li><strong>Междуобработчики (middleware):</strong> Расширение
+                функционала фреймворка для логирования, аутентификации и других
+                задач.
+            </li>
+            <li><strong>Многозадачность:</strong> Обработка запросов клиентов
+                одновременно с помощью потоков для повышения производительности
+                сервера.
+            </li>
+        </ul>
+        <p>Мы создали <strong>WFW</strong> с акцентом на простоту и гибкость,
+            чтобы разработчики могли быстро начать и эффективно создавать свои
+            приложения.</p>
+    </section>
+
+    <section class="team-members">
+        <!-- Участник 1 -->
+        <div class="team-member">
+            <h2>Андрей Исаев</h2>
+            <p><strong>Роль:</strong> Backend-разработчик</p>
+        </div>
+
+        <!-- Участник 2 -->
+        <div class="team-member">
+            <h2>Елизавета Яремова</h2>
+            <p><strong>Роль:</strong> Backend-разработчик</p>
+        </div>
+
+        <!-- Участник 3 -->
+        <div class="team-member">
+            <h2>Екатерина Ионидис</h2>
+            <p><strong>Роль:</strong> Backend-разработчик</p>
+        </div>
+
+        <!-- Участник 4 -->
+        <div class="team-member">
+            <h2>Никита Селиверстов</h2>
+            <p><strong>Роль:</strong> Backend-разработчик</p>
+        </div>
+    </section>
+</div>
+
+<footer>
+    <p>&copy; 2024 Хакатон ВКонтакте. Все права защищены.</p>
+    <p>Связаться с нами: ionidis.katya@gmail.com</p>
+</footer>
+
 </body>
 </html>

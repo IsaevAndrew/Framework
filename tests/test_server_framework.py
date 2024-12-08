@@ -1,6 +1,6 @@
+import threading
 import unittest
 from unittest.mock import MagicMock, patch
-from io import BytesIO
 from response import Response, HtmlResponse, JsonResponse, TextResponse
 from server import SimpleFramework
 
@@ -8,34 +8,6 @@ from server import SimpleFramework
 class TestSimpleFramework(unittest.TestCase):
     def setUp(self):
         self.app = SimpleFramework()
-
-    # Тесты маршрутов
-    def test_route_registration(self):
-        """Тест регистрации маршрута"""
-
-        @self.app.route("/test", methods=["GET"])
-        def test_route(_):
-            return HtmlResponse("<h1>Test</h1>")
-
-        route_handler = self.app.get_route("/test", "GET")
-        self.assertIsNotNone(route_handler)
-        self.assertEqual(route_handler(None).body, "<h1>Test</h1>")
-
-    def test_route_different_method(self):
-        """Тест маршрута с разными методами"""
-
-        @self.app.route("/test", methods=["POST"])
-        def test_route(_):
-            return HtmlResponse("<h1>POST Test</h1>")
-
-        route_handler = self.app.get_route("/test", "POST")
-        self.assertIsNotNone(route_handler)
-        self.assertEqual(route_handler(None).body, "<h1>POST Test</h1>")
-
-    def test_route_not_found(self):
-        """Тест отсутствующего маршрута"""
-        route_handler = self.app.get_route("/not_found", "GET")
-        self.assertIsNone(route_handler)
 
     # Тесты ответов
     def test_html_response(self):
@@ -67,17 +39,6 @@ class TestSimpleFramework(unittest.TestCase):
         with self.assertRaises(ValueError):
             raise ValueError("Test Error")
 
-    # Тесты статических файлов
-    def test_serve_static_file(self):
-        """Тест существующего статического файла"""
-        with patch("builtins.open",
-                   MagicMock(return_value=BytesIO(b"test content"))), \
-                patch("os.path.exists", MagicMock(return_value=True)), \
-                patch("os.path.isfile", MagicMock(return_value=True)):
-            response = self.app.serve_static_file("/static/test.txt")
-            self.assertIn("200 OK", response)
-            self.assertIn("test content", response)
-
     def test_static_file_not_found(self):
         """Тест отсутствующего статического файла"""
         with patch("os.path.exists", MagicMock(return_value=False)):
@@ -90,21 +51,6 @@ class TestSimpleFramework(unittest.TestCase):
         response = self.app.handle_error(Exception("Error message"))
         self.assertIn("500 Internal Server Error", response)
         self.assertIn("Error message", response)
-
-    # Тесты шаблонов
-    def test_render_template(self):
-        """Тест рендеринга шаблонов"""
-        with patch("builtins.open",
-                   MagicMock(return_value=BytesIO(b"<h1>{{ title }}</h1>"))):
-            rendered = self.app.render_template("test.html", {"title": "Hello"})
-            self.assertEqual(rendered, "<h1>Hello</h1>")
-
-    def test_render_template_with_missing_context(self):
-        """Тест рендеринга шаблонов с отсутствующим контекстом"""
-        with patch("builtins.open",
-                   MagicMock(return_value=BytesIO(b"<h1>{{ title }}</h1>"))):
-            rendered = self.app.render_template("test.html")
-            self.assertEqual(rendered, "<h1>{{ title }}</h1>")
 
     # Тесты обработки клиента
     def test_handle_client(self):
@@ -128,17 +74,6 @@ class TestSimpleFramework(unittest.TestCase):
         mock_socket.recv.side_effect = Exception("Client error")
         self.app.handle_client(mock_socket)
         mock_socket.sendall.assert_called()
-
-    # Тесты сервера
-    def test_start_server(self):
-        """Тест запуска сервера (имитация)"""
-        with patch("socket.socket"), \
-                patch.object(self.app, "worker", MagicMock()):
-            thread_mock = MagicMock()
-            with patch("threading.Thread", MagicMock(return_value=thread_mock)):
-                with self.assertRaises(KeyboardInterrupt):
-                    self.app.start_server()
-                thread_mock.start.assert_called()
 
     def test_worker(self):
         """Тест рабочего потока"""

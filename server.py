@@ -39,17 +39,24 @@ class SimpleFramework:
 
     def render_template(self, template_name, context=None):
         """ Простая шаблонизация """
-        if context is None:
-            context = {}
-        template_path = os.path.join("templates", template_name)
-        with open(template_path, "r") as f:
-            template = f.read()
+        try:
+            if context is None:
+                context = {}
+            template_path = os.path.join(self.template_folder, template_name)
+            if not os.path.exists(template_path):
+                raise FileNotFoundError(f"Template '{template_name}' not found")
 
-        # Заменяем переменные в шаблоне на значения из context
-        for key, value in context.items():
-            template = template.replace(f"{{{{ {key} }}}}", str(value))
+            with open(template_path, "r") as f:
+                template = f.read()
 
-        return template
+            # Заменяем переменные в шаблоне на значения из context
+            for key, value in context.items():
+                template = template.replace(f"{{{{ {key} }}}}", str(value))
+
+            return template
+        except Exception as e:
+            self.logger.exception("Error rendering template")
+            raise
 
     def handle_request(self, request):
         try:
@@ -63,12 +70,14 @@ class SimpleFramework:
             if path.startswith("/static/"):
                 return self.serve_static_file(path)
 
-            handler, params = self.router.get_route(path, method)
+            environ = {"method": method, "path": path}
+            for mw in self.middleware:
+                environ = mw(environ)
+
+            handler, params = self.router.get_route(environ["path"],
+                                                    environ["method"])
             if handler:
-                if params:
-                    response = handler(**params)
-                else:
-                    response = handler(self)
+                response = handler(self, **params) if params else handler(self)
 
                 if isinstance(response, Response):
                     return response.to_http_response()
@@ -127,15 +136,19 @@ class SimpleFramework:
     def handle_client(self, client_socket):
         """ Обрабатываем запрос клиента в отдельном потоке """
         try:
-            request = client_socket.recv(1024).decode()
+            request = client_socket.recv(
+                1024).decode()  # Декодируем входящий запрос
             if request:
                 response = self.handle_request(request)
-                client_socket.sendall(response.encode())
+                if isinstance(response,
+                              str):  # Если ответ в формате строки, преобразуем в байты
+                    response = response.encode('utf-8')
+                client_socket.sendall(response)  # Отправляем ответ
         except Exception as e:
             self.logger.exception("Error handling client request")
             try:
-                response = self.handle_error(e)
-                client_socket.sendall(response.encode())
+                error_response = self.handle_error(e).encode('utf-8')
+                client_socket.sendall(error_response)
             except Exception:
                 self.logger.error("Failed to send error response to client")
         finally:

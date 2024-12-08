@@ -3,6 +3,8 @@ import json
 
 class Response:
     def __init__(self, body, status="200 OK", content_type="text/html"):
+        if not isinstance(body, (str, bytes)):
+            raise TypeError("Body must be of type str or bytes")
         self.body = body
         self.status = status
         self.content_type = content_type
