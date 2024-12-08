@@ -2,6 +2,7 @@ import mimetypes
 import threading
 import socket
 
+from request_ import Request
 from response import Response
 from router import Router
 import os
@@ -58,19 +59,18 @@ class SimpleFramework:
             self.logger.exception("Error rendering template")
             raise
 
-    def handle_request(self, request):
+    def handle_request(self, raw_request):
         try:
-            lines = request.split("\r\n")
-            method, path, _ = lines[0].split(" ")
+            request = Request(raw_request)
         except ValueError:
             self.logger.error("Invalid HTTP request format")
             return self.handle_error(Exception("Invalid HTTP request format"))
 
         try:
-            if path.startswith("/static/"):
-                return self.serve_static_file(path)
+            if request.endpoint.startswith("/static/"):
+                return self.serve_static_file(request.endpoint)
 
-            environ = {"method": method, "path": path}
+            environ = {"method": request.method, "path": request.endpoint}
             for mw in self.middleware:
                 environ = mw(environ)
 
