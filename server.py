@@ -1,15 +1,14 @@
+import mimetypes
 from wsgiref.simple_server import make_server
-# from router import Routes
+from router import Routes
 import os
 
 
-class Routes:
-    pass
-
-
 class SimpleFramework:
-    def __init__(self):
+    def __init__(self, static_folder="static", template_folder="templates"):
         self.routes = Routes()
+        self.static_folder = static_folder
+        self.template_folder = template_folder
 
     def route(self, path, methods=["GET"]):
         """ Регистрация маршрута для конкретного пути """
