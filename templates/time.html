@@ -1,11 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #1e90ff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        header p {
+            font-size: 0.9em;
+            color: white;
+            text-align: left;
+            margin: 0;
+            font-weight: 300;
+        }
+
+        .container {
+            width: 80%;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .time-header {
+            margin-bottom: 30px;
+        }
+
+        .time-header h2 {
+            font-size: 2em;
+            color: #1e90ff;
+            margin-bottom: 10px;
+        }
+
+        .time {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+            margin: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            margin-top: 40px;
+        }
+
+        footer a {
+            color: #1e90ff;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Current Time: {{ time }}</h1>
+
+<header>
+    <h1>WFW</h1>
+</header>
+
+<div class="container">
+    <section class="time-header">
+        <h2>Текущее время</h2>
+        <p>На этой странице отображается текущее время на сервере:</p>
+    </section>
+
+    <div class="time">
+        {{ time }}
+    </div>
+</div>
+
+
 </body>
 </html>

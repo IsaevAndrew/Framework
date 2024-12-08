@@ -61,32 +61,40 @@ class SimpleFramework:
 
     def handle_request(self, raw_request):
         try:
+            # Парсим запрос
             request = Request(raw_request)
         except ValueError:
             self.logger.error("Invalid HTTP request format")
             return self.handle_error(Exception("Invalid HTTP request format"))
 
         try:
+            # Проверка на статические файлы
             if request.endpoint.startswith("/static/"):
                 return self.serve_static_file(request.endpoint)
 
+            # Обработка маршрутов
             environ = {"method": request.method, "path": request.endpoint}
             for mw in self.middleware:
                 environ = mw(environ)
 
-            handler, params = self.router.get_route(environ["path"],
-                                                    environ["method"])
-            if handler:
-                response = handler(**params) if params else handler(self)
-
-                if isinstance(response, Response):
-                    return response.to_http_response()
-                else:
-                    raise ValueError(
-                        "Handler did not return a valid Response object")
-            else:
+            route_result = self.router.get_route(environ["path"],
+                                                 environ["method"])
+            if route_result is None:
+                # Если маршрут не найден
                 return self.build_response("404 Not Found", "text/html",
                                            "<h1>404 Not Found</h1>")
+
+            # Распаковка обработчика и параметров
+            handler, params = route_result
+
+            # Вызов обработчика маршрута
+            response = handler(self, **params) if params else handler(self)
+
+            if isinstance(response, Response):
+                return response.to_http_response()
+            else:
+                raise ValueError(
+                    "Handler did not return a valid Response object")
         except Exception as e:
             self.logger.exception("Error during request handling")
             return self.handle_error(e)

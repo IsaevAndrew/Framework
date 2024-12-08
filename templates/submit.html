@@ -1,12 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #1e90ff;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        pre {
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #1e90ff;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 20px;
+            font-size: 1em;
+        }
+
+        .button:hover {
+            background-color: #007acc;
+        }
+    </style>
 </head>
 <body>
-    <h1>Submitted Data</h1>
-    <pre>{{ data }}</pre>
+
+    <div class="container">
+        <h1>{{ title }}</h1>
+        <p>Спасибо за отправку данных! Вот информация, которую вы отправили:</p>
+
+        <pre>{{ data }}</pre>
+
+        <a href="/" class="button">Вернуться на главную</a>
+    </div>
+
 </body>
 </html>

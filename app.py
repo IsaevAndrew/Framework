@@ -1,7 +1,8 @@
+import json
 from datetime import datetime
 
 from server import SimpleFramework
-from response import HtmlResponse, Response
+from response import HtmlResponse, Response, JsonResponse, TextResponse
 
 app = SimpleFramework()
 
@@ -9,7 +10,7 @@ app = SimpleFramework()
 @app.route("/")
 def index(app):
     return HtmlResponse(app.render_template("index.html", {
-        "title": "Home",
+        "title": "WFW",
         "message": "Welcome to the Web Framework!"
     }))
 
@@ -22,9 +23,26 @@ def time(app):
         "time": current_time
     }))
 
+
+@app.route("/submit", methods=["GET", "POST"])
+def submit(app):
+    data = {"name": "Иван Иванов", "email": "ivan@example.com",
+            "message": "Привет, мир!"}
+    return HtmlResponse(app.render_template("submit.html", {
+        "title": "Данные отправлены",
+        "data": json.dumps(data, ensure_ascii=False, indent=4)
+    }))
+
+
 @app.route('/user/<username>')
 def show_user(username):
-    return Response(f"Hello {username} !")
+    return TextResponse(f"Hello {username} !")
+
+
+@app.route('/user/<username>/json', methods=["GET"])
+def show_user(app, username):
+    return JsonResponse({"username": username})
+
 
 if __name__ == "__main__":
     app.start_server()
