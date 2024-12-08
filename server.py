@@ -1,6 +1,8 @@
 import mimetypes
 import threading
 import socket
+
+from response import Response
 from router import Router
 import os
 import queue
@@ -70,8 +72,12 @@ class SimpleFramework:
         handler = self.get_route(path, method)
         if handler:
             try:
-                response_body = handler(self)
-                return self.build_response("200 OK", "text/html", response_body)
+                response = handler(self)
+                if isinstance(response, Response):
+                    return response.to_http_response()
+                else:
+                    raise ValueError(
+                        "Handler did not return a valid Response object")
             except Exception as e:
                 return self.handle_error(e)
         else:
